@@ -59,11 +59,12 @@ function createPlugin(
     // 数据校验模块
     fastify.addHook('preValidation', async (request, reply) => {
       for (const paramMd of route.parameters) {
+        const value = parseParam(paramMd.locations, request)
+        paramValues.push(value)
         if (paramMd.dto) {
           const key = paramMd.locations[2]
-          const value = parseParam(paramMd.locations, request)
-          paramValues.push(value)
           let instance
+          // 如果有key, 说明是param类型数据, 要包装成对象
           if (key) {
             instance = plainToInstance(paramMd.dto as ClassConstructor<any>, {
               [key]: value
@@ -76,9 +77,10 @@ function createPlugin(
             }
             instance = plainToInstance(
               paramMd.dto as ClassConstructor<any>,
-              value
+              value || {}
             )
           }
+
           const errors = await validate(instance)
           if (errors.length > 0) {
             const messages = errors[0].constraints as {

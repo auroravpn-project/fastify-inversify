@@ -7,7 +7,8 @@ import {
   Post,
   Body,
   Valid,
-  errorCodes
+  errorCodes,
+  Request
 } from '../../src/index'
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator'
 class SubmitDTO {
@@ -39,9 +40,8 @@ class TestController {
   }
 
   @Post('/submit')
-  submit(@Valid(SubmitDTO) @Body() body: SubmitDTO) {
-    console.log(111)
-
+  submit(@Valid(SubmitDTO) @Body() body: SubmitDTO, @Request() req: any) {
+    // console.log(req)
     return 'success'
   }
 }
@@ -89,6 +89,7 @@ app.setExceptionInterceptor((error: any) => {
       }
     }
   }
+  console.log(error)
 
   return {
     status: 500,
