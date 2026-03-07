@@ -1,2 +1,2 @@
 'use strict'
-module.exports = require('./dist/fastify-di.cjs')
+module.exports = require('./dist/fastify-inversify.cjs')

@@ -2,7 +2,8 @@ import { Container } from 'inversify'
 import { context } from './app-context'
 import { createFastify } from '../server/fastify-instance'
 import { loadRoutes } from '../server/routes-loader'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { errorCodes, FastifyReply, FastifyRequest } from 'fastify'
+import { InvalidJsonBody } from '../errors/invalid-json-body.error'
 
 export class InversifyFastify {
   constructor(container: Container) {
@@ -71,7 +72,12 @@ export class InversifyFastify {
   setExceptionInterceptor(
     callback: (error: unknown) => { payload: unknown; status: number }
   ) {
-    context.getFastify().setErrorHandler((error, request, reply) => {
+    context.getFastify().setErrorHandler((error: any, request, reply) => {
+      if (error.code === errorCodes.FST_ERR_CTP_INVALID_JSON_BODY().code) {
+        error = new InvalidJsonBody(
+          `Body is not valid JSON but content-type is set to 'application/json'`
+        )
+      }
       const { payload, status } = callback(error)
       reply.status(status).send(payload)
     })

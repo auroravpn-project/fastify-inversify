@@ -6,10 +6,10 @@ import {
   InversifyFastify,
   Post,
   Body,
-  Valid
+  Valid,
+  errorCodes
 } from '../../src/index'
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator'
-import { context } from '../../src/core/app-context'
 class SubmitDTO {
   @IsNotEmpty({ message: '用户名是必填字段' })
   // @IsNotEmpty()
@@ -40,6 +40,8 @@ class TestController {
 
   @Post('/submit')
   submit(@Valid(SubmitDTO) @Body() body: SubmitDTO) {
+    console.log(111)
+
     return 'success'
   }
 }
@@ -59,13 +61,31 @@ app.setExceptionInterceptor((error: any) => {
     }
   }
 
-  if (error.code === 'VALIDATION_FAILED') {
+  if (error.code === errorCodes.VALIDATION_FAILED) {
     return {
       status: 400,
       payload: {
         msg: error.message,
         status: 400,
         data: null
+      }
+    }
+  }
+
+  if (error.code === errorCodes.INVALID_CONTENT_TYPE_ERROR) {
+    return {
+      status: 415,
+      payload: {
+        msg: '类型错误'
+      }
+    }
+  }
+
+  if (error.code === errorCodes.INVALID_JSON_BODY) {
+    return {
+      status: 400,
+      payload: {
+        msg: '格式错误'
       }
     }
   }

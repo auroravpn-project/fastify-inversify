@@ -16,7 +16,7 @@ export default defineConfig([
     input: 'src/index.ts',
     external: [...Object.keys(pkg.dependencies)],
     output: {
-      file: 'dist/fastify-di.cjs',
+      file: 'dist/fastify-inversify.cjs',
       format: 'cjs',
       sourcemap: false
     },
@@ -31,7 +31,7 @@ export default defineConfig([
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/fastify-di.d.ts',
+      file: 'dist/fastify-inversify.d.ts',
       format: 'es'
     },
     plugins: [dts()]

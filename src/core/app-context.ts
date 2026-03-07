@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { Container } from 'inversify'
-import { AppCtxNotInitializedError } from './errors/app-ctx-not-ini.error'
+import { AppCtxNotInitializedError } from '../errors/app-ctx-not-ini.error'
 
 class AppContext {
   private fastify: FastifyInstance | null = null

@@ -4,18 +4,19 @@
   "description": "",
   "main": "./index.js",
   "module": "./index.mjs",
-  "types": "dist/fastify-di.d.ts",
+  "types": "dist/fastify-inversify.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./dist/fastify-inversify.d.ts"
+    }
+  },
   "files": [
     "dist",
     "index.js",
     "index.mjs"
   ],
-  "exports": {
-    ".": {
-      "import": "./index.mjs",
-      "require": "./index.js"
-    }
-  },
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "rollup -c",
@@ -24,13 +25,15 @@
   },
   "author": "CyHollis",
   "license": "MIT",
+  "peerDependencies": {
+    "inversify": "^7.11.0"
+  },
   "dependencies": {
     "@auroravpn/class-metadata": "^1.0.0",
     "@fastify/cookie": "^11.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
-    "fastify": "^5.6.2",
-    "inversify": "^7.10.8"
+    "fastify": "^5.6.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.0",

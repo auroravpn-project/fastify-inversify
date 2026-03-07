@@ -1,2 +1,3 @@
-export * from './core/index'
-export * from './decorators/index'
+export * from './core'
+export * from './decorators'
+export * from './errors'

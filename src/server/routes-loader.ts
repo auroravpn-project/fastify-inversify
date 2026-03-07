@@ -1,50 +1,32 @@
-import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { ClassConstructor, plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import { context } from '../core/app-context'
 import { resolve } from '../core/resolver'
 import { storage } from '../metadata/metadata-storage'
-import {
-  ControllerMetadata,
-  ParameterMetadata,
-  RouteMetadata
-} from '../metadata/metadata'
-import { ValidationError } from './errors/validation.error'
-
-// 参数
-let params: any[] = []
+import { ControllerMetadata, RouteMetadata } from '../metadata/metadata'
+import { ValidationError } from '../errors/validation-failed.error'
+import { InvalidContentTypeError } from '../errors/invalid-content-type.error'
 
 // 解析参数
-function parseParameters(
-  parameters: ParameterMetadata[],
-  request: FastifyRequest
-) {
-  const params: any[] = []
-  parameters.forEach((parameter) => {
-    const { locations } = parameter
-    let res: any
-    if (locations[0] === 'request') {
-      res = request
-      if (locations.length === 1) {
-        return params.push(res)
+function parseParam(locations: string[], request: FastifyRequest) {
+  if (locations[0] === 'request') {
+    if (locations.length === 1) {
+      return request
+    }
+    if (
+      locations[1] === 'body' ||
+      locations[1] === 'params' ||
+      locations[1] === 'headers'
+    ) {
+      if (locations.length === 2) {
+        return request[locations[1]]
       }
-      if (
-        locations[1] === 'body' ||
-        locations[1] === 'params' ||
-        locations[1] === 'headers'
-      ) {
-        res = request[locations[1]]
-        if (locations.length === 2) {
-          return params.push(res)
-        }
-        if (locations[2]) {
-          res = res[locations[2]]
-        }
+      if (locations[2]) {
+        return (request[locations[1]] as any)?.[locations[2]]
       }
     }
-    params.push(res)
-  })
-  return params
+  }
 }
 
 // 创建插件
@@ -54,8 +36,9 @@ function createPlugin(
   propertyName: string
 ) {
   const path = controller.prefix + route.path
-  const handler = (request: FastifyRequest, reply: FastifyReply) => {
-    return resolve(controller.target)[propertyName](...params)
+  const paramValues: any[] = []
+  const handler = () => {
+    return resolve(controller.target)[propertyName](...paramValues)
   }
   const plugin: FastifyPluginAsync = async (fastify, opts) => {
     if (route.method === 'GET') {
@@ -73,18 +56,29 @@ function createPlugin(
       fastify.delete(path, handler)
     }
 
-    // 数据验证模块
+    // 数据校验模块
     fastify.addHook('preValidation', async (request, reply) => {
-      // 解析参数
-      params = parseParameters(route.parameters, request)
-      // 使用forof代替forEach, 防止错误处理无法体跳出循环问题
-      for (const [index, param = {}] of params.entries()) {
-        const dto = route.getParameter(index).dto
-        if (dto) {
-          const key = route.getParameter(index).locations[2]
-          const instance = key
-            ? plainToInstance(dto as ClassConstructor<any>, { [key]: param })
-            : plainToInstance(dto as ClassConstructor<any>, param)
+      for (const paramMd of route.parameters) {
+        if (paramMd.dto) {
+          const key = paramMd.locations[2]
+          const value = parseParam(paramMd.locations, request)
+          paramValues.push(value)
+          let instance
+          if (key) {
+            instance = plainToInstance(paramMd.dto as ClassConstructor<any>, {
+              [key]: value
+            })
+          } else {
+            if (typeof value === 'string') {
+              throw new InvalidContentTypeError(
+                `Expected 'application/json', but received 'text/plain'`
+              )
+            }
+            instance = plainToInstance(
+              paramMd.dto as ClassConstructor<any>,
+              value
+            )
+          }
           const errors = await validate(instance)
           if (errors.length > 0) {
             const messages = errors[0].constraints as {
