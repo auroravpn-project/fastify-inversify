@@ -36,9 +36,8 @@ function createPlugin(
   propertyName: string
 ) {
   const path = controller.prefix + route.path
-  const paramValues: any[] = []
-  const handler = () => {
-    return resolve(controller.target)[propertyName](...paramValues)
+  const handler = (request: any) => {
+    return resolve(controller.target)[propertyName](...request.paramValues)
   }
   const plugin: FastifyPluginAsync = async (fastify, opts) => {
     if (route.method === 'GET') {
@@ -58,6 +57,7 @@ function createPlugin(
 
     // 数据校验模块
     fastify.addHook('preValidation', async (request, reply) => {
+      const paramValues = []
       for (const paramMd of route.parameters) {
         const value = parseParam(paramMd.locations, request)
         paramValues.push(value)
@@ -91,6 +91,7 @@ function createPlugin(
           }
         }
       }
+      ;(request as any).paramValues = paramValues
     })
   }
   return plugin

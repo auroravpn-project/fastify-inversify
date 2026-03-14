@@ -1,30 +1,19 @@
-# Fastify-DI
-![TypeScript](https://img.shields.io/badge/TypeScript->=5-3178C6?logo=typescript&logoColor=white)
-![Node.js 20 LTS](https://img.shields.io/badge/Node.js-20_LTS-339933?logo=nodedotjs&logoColor=white)
-![Fastify v5](https://img.shields.io/badge/Fastify-v5-000000?logo=fastify&logoColor=white)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+# Fastify-Inversify
+### Table of Contents
 
-装饰器加依赖注入风格的Fastify框架
-
-## 📋 目录
-
-- [✨ 特性](#特性)
-- [📦 安装](#安装)
-- [🚀 快速开始](#快速开始)
-- [🔧 API 参考](#API-参考)
-- [📄 许可证](#许可证)
-- [🔗 链接](#链接)
-- [📊 版本兼容性](#版本兼容性)
-
-## 特性
-
-- ✅ 依赖注入和 IOC 控制反转
-- ✅ 装饰器风格
-- ✅ 请求/响应拦截器
-- ✅ 错误拦截器
+- [Installation](#Installation)
+- [Quickstart](#Quickstart)
+  - [Basic usage](#Basic-usage)
+  - [Auto-inject Parameters](#Auto-inject-Parameters)
+  - [Input validation](#Input-validation)
+  - [Intercepetors](#Intercepetors)
+- [API References](#API-References)
+  - [Constructor](#Constructor)
+  - [Instance methods](#Instance-methods)
+  - [Decorators](#Decorators)
 
 
-## 安装
+### Installation
 
 ```bash
 # 使用 npm
@@ -37,10 +26,10 @@ yarn add @auroravpn/fastify-inversify inversify
 pnpm add @auroravpn/fastify-inversify inversify
 ```
 
-## 快速开始
-> ⚠️ **警告：** 本项目必须使用Typescript以获得装饰器支持
+### Quickstart
+> ⚠️ **警告：** 本项目必须使用 Typescript 并启用装饰器选项
 
-### 基本使用
+#### Basic usage
 
 ```typescript
 // 引入包
@@ -68,7 +57,7 @@ app.listen({ port: 3000, host: 'localhost' }, () => {
 })
 ```
 
-### 自动注入参数
+#### Auto-inject Parameters
 
 ```typescript
 @Controller('/welcome')
@@ -80,7 +69,8 @@ class ExampleController {
 }
 ```
 
-### 数据验证
+#### Input Validation
+
 你需要通过`class-validator`创建DTO来实现数据验证功能，使用`npm install class-validator`以安装
 
 ```typescript
@@ -101,9 +91,9 @@ class ExampleController {
 }
 ```
 
-### 拦截器
+#### Intercepetors
 
-1. 请求拦截器
+请求拦截器
 
 ```typescript
 app.setRequestIntercepetor((request, reply) => {
@@ -111,7 +101,8 @@ app.setRequestIntercepetor((request, reply) => {
 })
 ```
 
-2. 响应拦截器
+响应拦截器
+
 ```typescript
 app.setResponseInterceptor((payload) => {
     // 统一格式化响应数据
@@ -123,7 +114,8 @@ app.setResponseInterceptor((payload) => {
 })
 ```
 
-3. 错误拦截器
+错误拦截器
+
 ```typescript
 app.setExceptionInterceptor((error: any) => {
     // 统一错误处理
@@ -149,17 +141,17 @@ app.setExceptionInterceptor((error: any) => {
 })
 ```
 
-## API 参考
+### API references
 
-### 构造函数
+#### Constructor
 
-#### `new InversifyFastify(container)`
+##### `new InversifyFastify(container)`
 **参数:**
 - `container` (Inversify.Container): Inversify容器
 
-### 实例方法
+#### Instance methods
 
-#### `InversifyFastify.listen([opts], [callback])`
+##### `InversifyFastify.listen([opts], [callback])`
 
 **参数：**
 - `opts` (object): 配置对象
@@ -175,7 +167,7 @@ app.listen({ port: 3000, host: 'localhost' }, async () => {
 })
 ```
 
-#### `InversifyFastify.setRequestIntercepetor(handler)`
+##### `InversifyFastify.setRequestIntercepetor(handler)`
 
 **参数：**
 
@@ -193,7 +185,7 @@ app.setRequestInterceptor((request, reply) => {
 })
 ```
 
-#### `InversifyFastify.setResponseIntercepetor(handler)`
+##### `InversifyFastify.setResponseIntercepetor(handler)`
 
 **参数：**
 
@@ -215,7 +207,7 @@ app.setResponseInterceptor((payload) => {
 })
 ```
 
-#### `InversifyFastify.setExceptionIntercepetor(handler)`
+##### `InversifyFastify.setExceptionIntercepetor(handler)`
 
 **参数：**
 
@@ -242,9 +234,8 @@ app.setExceptionInterceptor((error: any) => {
 })
 ```
 
-### 装饰器
+#### Decorators
 
-#### 类装饰器
 ##### `@Controller([prefix])`
 
 标记控制器
@@ -259,8 +250,8 @@ app.setExceptionInterceptor((error: any) => {
 class TestController {}
 ```
 
-#### 方法装饰器
 ##### `@Get(path)`
+
 路由GET方法
 
 **参数： ** `path` (string): 必须, 路由路径
@@ -329,8 +320,8 @@ class TestController {
 }
 ```
 
-#### 参数装饰器
 ##### `@Param([key])`
+
 获取请求参数
 
 **参数：** `key` (string): 可选, 如果传入, 则返回对应key的参数, 如果不传, 则返回整个params对象
@@ -407,20 +398,5 @@ class TestController {
 }
 ```
 
-## 许可证
 
-本项目基于 [MIT](LICENSE) 许可证。
 
-## 链接
-
-- [GitHub 仓库](https://github.com/cyhollis/fastify-di)
-
----
-
-**重要提示：** 使用前请确保已阅读相关文档，生产环境请先进行充分测试。
-
-## 版本兼容性
-
-| 版本 | Node.js | Typescript | 备注 |
-|------|---------|------------|------------|
-| 1.x+ | >= 20 | >= 5 | 第一个正式大版本 |
